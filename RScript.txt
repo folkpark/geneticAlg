@@ -1,0 +1,2 @@
+> setwd("C:/Users/pfolkman/Desktop/bank")
+> bankData <- read.csv(file="bank-full.csv",head=TRUE, sep = ";")
