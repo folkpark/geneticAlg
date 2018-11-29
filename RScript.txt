@@ -11,3 +11,8 @@
 +         denom <- sqrt((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))
 +     }
 + return(numerator/denom)}
+> bankData_numeric <- matrix(unlist(bankData), ncol = 17, nrow = 45211)
+> randSelection <- function(num_of_attributes){
++     vector <- vector()
++     vector <- c(vector,round(runif(num_of_attributes,min=0,max=1)))
++     return(vector)}
