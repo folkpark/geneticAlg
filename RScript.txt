@@ -1,2 +1,13 @@
 > setwd("C:/Users/pfolkman/Desktop/bank")
 > bankData <- read.csv(file="bank-full.csv",head=TRUE, sep = ";")
+> TP <- 0
+> TN <- 0
+> FP <- 0
+> FN <- 0
+> MCC_func <- function(TP,TN,FP,FN){
++ numerator <- (TP*TN - FP*FN)
++ denom <- 1
++     if((TP+FP != 0) & (TP+FN != 0) & (TN+FP != 0) & (TN+FN != 0)){
++         denom <- sqrt((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))
++     }
++ return(numerator/denom)}
