@@ -12,6 +12,7 @@
 +     }
 + return(numerator/denom)}
 > bankData_numeric <- matrix(unlist(bankData), ncol = 17, nrow = 45211)
+> colnames(bankData_numeric) <- c("age","job","Maritial Status","Education","has Credit?","balance (Euros)","Home loan?","Personal Loan?","Comm type","Day","Month","Duration","Campaign","pdays","previous","poutcome","y or n")
 > randSelection <- function(num_of_attributes){
 +     vector <- vector()
 +     vector <- c(vector,round(runif(num_of_attributes,min=0,max=1)))
