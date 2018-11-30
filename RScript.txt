@@ -1,5 +1,9 @@
 > setwd("C:/Users/pfolkman/Desktop/bank")
 > bankData <- read.csv(file="bank-full.csv",head=TRUE, sep = ";")
+> install.packages("BBmisc")
+> library(BBmisc)
+> install.packages("class")
+> library(class)
 > TP <- 0
 > TN <- 0
 > FP <- 0
@@ -18,3 +22,9 @@
 +     vector <- vector()
 +     vector <- c(vector,round(runif(num_of_attributes,min=0,max=1)))
 +     return(vector)}
+> bankData_norm_df <- normalize(bankData_numeric_df, method = "range", range = c(0,1))
+> bankData_norm_matrix <- normalize(bankData_numeric, method = "range",range = c(0,1))
+> trainingData_df  <- bankData_norm_df[1:36000,]
+> testData_df <- bankData_norm_df[36000:nrow(bankData_norm_df),]
+> trainingData_df_label <- bankData_norm_df[1:36000,1]
+> testData_df_label <- bankData_norm_df[36000:nrow(bankData_norm_df),1]
