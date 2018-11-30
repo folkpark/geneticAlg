@@ -22,9 +22,13 @@
 +     vector <- vector()
 +     vector <- c(vector,round(runif(num_of_attributes,min=0,max=1)))
 +     return(vector)}
-> bankData_norm_df <- normalize(bankData_numeric_df, method = "range", range = c(0,1))
-> bankData_norm_matrix <- normalize(bankData_numeric, method = "range",range = c(0,1))
+> normalizeData <- function(x){
++ numer <- x - min(x)
++ denom <- max(x) - min(x)
++ return(numer/denom)}
+> bankData_norm_df <- as.data.frame(lapply(bankData_numeric_df[1:16],normalizeData))
 > trainingData_df  <- bankData_norm_df[1:36000,]
 > testData_df <- bankData_norm_df[36001:nrow(bankData_norm_df),]
 > trainingData_df_label <- bankData_norm_df[1:36000,1]
 > testData_df_label <- bankData_norm_df[36001:nrow(bankData_norm_df),1]
+> knnresult <- knn(train = trainingData_df, test = testData_df, cl = trainingData_df_label,k=50)
