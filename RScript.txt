@@ -3,6 +3,7 @@
 > install.packages("BBmisc")
 > library(BBmisc)
 > install.packages("class")
+> library(gmodels)
 > library(class)
 > TP <- 0
 > TN <- 0
@@ -26,9 +27,33 @@
 + numer <- x - min(x)
 + denom <- max(x) - min(x)
 + return(numer/denom)}
-> bankData_norm_df <- as.data.frame(lapply(bankData_numeric_df[1:16],normalizeData))
+> bankData_norm_df <- as.data.frame(lapply(bankData_numeric_df[1:17],normalizeData))
 > trainingData_df  <- bankData_norm_df[1:36000,]
 > testData_df <- bankData_norm_df[36001:nrow(bankData_norm_df),]
-> trainingData_df_label <- bankData_norm_df[1:36000,1]
-> testData_df_label <- bankData_norm_df[36001:nrow(bankData_norm_df),1]
-> knnresult <- knn(train = trainingData_df, test = testData_df, cl = trainingData_df_label,k=50)
+> trainingData_label <- bankData_numeric[1:36000,17]
+> testData_label <- bankData_numeric[36001:nrow(bankData_norm_df),17]
+> knnresult <- knn(train = trainingData_df, test = testData_df, cl = trainingData_label,k=50)
+> CrossTable(x = testData_label, y = knnresult,prop.chisq = FALSE)
+> bankData_norm_matrix <- as.matrix(bankData_norm_df)
+> testData_matrix <- as.matrix(testData_df)
+> trainingData_matrix <- as.matrix(trainingData_df)
+> getPrediction_test <- function(pred){
++     tempList <- c()
++     for(i in 1:16){
++         if(pred[i] == 1){
++             tempList <- c(tempList,i)
++         }
++     }
++     tempList <- c(tempList,17)
++     return(as.data.frame(testData_matrix[,tempList]))
++ }
+> getPrediction_train <- function(pred){
++     tempList <- c()
++     for(i in 1:16){
++         if(pred[i] == 1){
++             tempList <- c(tempList,i)
++         }
++     }
++     tempList <- c(tempList,17)
++     return(as.data.frame(trainingData_matrix[,tempList]))
++ }
