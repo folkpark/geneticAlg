@@ -1,59 +1,154 @@
-> setwd("C:/Users/pfolkman/Desktop/bank")
-> bankData <- read.csv(file="bank-full.csv",head=TRUE, sep = ";")
-> install.packages("BBmisc")
-> library(BBmisc)
-> install.packages("class")
-> library(gmodels)
-> library(class)
-> TP <- 0
-> TN <- 0
-> FP <- 0
-> FN <- 0
-> MCC_func <- function(TP,TN,FP,FN){
-+ numerator <- (TP*TN - FP*FN)
-+ denom <- 1
-+     if((TP+FP != 0) & (TP+FN != 0) & (TN+FP != 0) & (TN+FN != 0)){
-+         denom <- sqrt((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))
-+     }
-+ return(numerator/denom)}
-> bankData_numeric <- matrix(unlist(bankData), ncol = 17, nrow = 45211)
-> colnames(bankData_numeric) <- c("age","job","Maritial Status","Education","has Credit?","balance (Euros)","Home loan?","Personal Loan?","Comm type","Day","Month","Duration","Campaign","pdays","previous","poutcome","y or n")
-> bankData_numeric_df <- as.data.frame(bankData_numeric)
-> randSelection <- function(num_of_attributes){
-+     vector <- vector()
-+     vector <- c(vector,round(runif(num_of_attributes,min=0,max=1)))
-+     return(vector)}
-> normalizeData <- function(x){
-+ numer <- x - min(x)
-+ denom <- max(x) - min(x)
-+ return(numer/denom)}
-> bankData_norm_df <- as.data.frame(lapply(bankData_numeric_df[1:17],normalizeData))
-> trainingData_df  <- bankData_norm_df[1:36000,]
-> testData_df <- bankData_norm_df[36001:nrow(bankData_norm_df),]
-> trainingData_label <- bankData_numeric[1:36000,17]
-> testData_label <- bankData_numeric[36001:nrow(bankData_norm_df),17]
-> knnresult <- knn(train = trainingData_df, test = testData_df, cl = trainingData_label,k=50)
-> CrossTable(x = testData_label, y = knnresult,prop.chisq = FALSE)
-> bankData_norm_matrix <- as.matrix(bankData_norm_df)
-> testData_matrix <- as.matrix(testData_df)
-> trainingData_matrix <- as.matrix(trainingData_df)
-> getPrediction_test <- function(pred){
-+     tempList <- c()
-+     for(i in 1:16){
-+         if(pred[i] == 1){
-+             tempList <- c(tempList,i)
-+         }
-+     }
-+     tempList <- c(tempList,17)
-+     return(as.data.frame(testData_matrix[,tempList]))
-+ }
-> getPrediction_train <- function(pred){
-+     tempList <- c()
-+     for(i in 1:16){
-+         if(pred[i] == 1){
-+             tempList <- c(tempList,i)
-+         }
-+     }
-+     tempList <- c(tempList,17)
-+     return(as.data.frame(trainingData_matrix[,tempList]))
-+ }
+library(class)
+
+randSelection <- function(num_of_attributes){
+     vector <- vector()
+     vector <- c(vector,round(runif(num_of_attributes,min=0,max=1)))
+     return(vector)}
+
+MCC_func <- function(TP,TN,FP,FN){
+	numerator <- (TP*TN - FP*FN)
+	denom <- 1
+     if((TP+FP != 0) & (TP+FN != 0) & (TN+FP != 0) & (TN+FN != 0)){
+         denom <- sqrt((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))
+     }
+	return(numerator/denom)}
+ 
+cross_function <- function(vector_1, vector_2){
+	vector_3 <- c(vector_1[1], vector_1[2],vector_1[3],vector_1[4],vector_1[5], vector_1[6],vector_1[7],vector_1[8],vector_2[9],vector_2[10],vector_2[11],vector_2[12],vector_2[13],vector_2[14],vector_2[15],vector_2[16])
+	return(vector_3)
+}
+
+mutate_function <- function(vector_1){
+	flip_position <- sample(1:16,1,replace=T)
+	
+	vector_1[flip_position] = 1 - vector_1[flip_position]
+
+	return(vector_1)
+}
+
+normalize <- function(x) {
+	return ((x - min(x)) / (max(x) - min(x))) 
+}
+
+bankData_numeric <- matrix(unlist(bankData), ncol = 17, nrow = 45211)
+colnames(bankData_numeric) <- c("age","job","Maritial Status","Education","has Credit?","balance (Euros)","Home loan?","Personal Loan?","Comm type","Day","Month","Duration","Campaign","pdays","previous","poutcome","y or n")
+bankData_numeric_df <- as.data.frame(bankData_numeric)
+bankData_norm_df <- as.data.frame(lapply(bankData_numeric_df[1:17],normalizeData))
+trainingData_df  <- bankData_norm_df[1:36000,]
+testData_df <- bankData_norm_df[36001:nrow(bankData_norm_df),]
+trainingData_label <- bankData_numeric[1:36000,17]
+testData_label <- bankData_numeric[36001:nrow(bankData_norm_df),17]
+bankData_norm_matrix <- as.matrix(bankData_norm_df)
+testData_matrix <- as.matrix(testData_df)
+trainingData_matrix <- as.matrix(trainingData_df)
+
+getPrediction_test <- function(pred){
+     tempList <- c()
+     for(j in 1:16){
+         if(pred[j] == 1){
+             tempList <- c(tempList,j)
+         }
+     }
+    return(as.data.frame(testData_matrix[,tempList]))
+ }
+getPrediction_train <- function(pred){
+     tempList <- c()
+     w <- 1
+     for(w in 1:16){
+         if(pred[w] == 1){
+             tempList <- c(tempList,w)
+         }
+     }
+     w <- 0
+     print("hello")
+    return(as.data.frame(trainingData_matrix[,tempList]))
+ }
+
+getFitness <- function(pred){
+	prediction_train_df <- getPrediction_train(pred)
+	#print(prediction_train_df)
+	prediction_test_df <- getPrediction_test(pred)
+	#print(prediction_test_df)
+	#class_labels_df <- as.data.frame(trainingData_matrix[,17])
+	knnresult <- knn(train = prediction_train_df, test = prediction_test_df, cl = trainingData_label,k=49)
+	#print(knnresult)
+	test_labels_df <- testData_matrix[,17]
+	
+	#print(test_labels_df)
+	TP <- 0
+	TN <- 0
+	FP <- 0
+	FN <- 0
+	for (i in 1:9211){
+		if((knnresult[i]==2) & (test_labels_df[i]==2)){
+			TP <- TP + 1
+		}
+		else if((knnresult[i]==2) & (test_labels_df[i]==1)){
+			FP <- FP + 1
+		}
+		else if((knnresult[i]==1) & (test_labels_df[i]==1)){
+			TN <- TN + 1
+		}
+		else {
+			FN <- FN + 1
+		}
+	}
+	print(TP)
+	print(FP)
+	print(TN)
+	print(FN)
+	return (MCC_func(TP,TN,FP,FN))
+	
+}
+
+
+
+parent_1 <- randSelection(16)
+parent_2 <- randSelection(16)
+parent_3 <- randSelection(16)
+parent_4 <- randSelection(16)
+parent_5 <- randSelection(16)
+parent_6 <- randSelection(16)
+parent_7 <- randSelection(16)
+parent_8 <- randSelection(16)
+counter <- 0
+repeat{
+	mcc_1 <- getFitness(parent_1)
+	mcc_2 <- getFitness(parent_2)
+	mcc_3 <- getFitness(parent_3)
+	mcc_4 <- getFitness(parent_4)
+	mcc_5 <- getFitness(parent_5)
+	mcc_6 <- getFitness(parent_6)
+	mcc_7 <- getFitness(parent_7)
+	mcc_8 <- getFitness(parent_8)
+	mcc_dataframe <-data.frame(c(mcc_1,mcc_2,mcc_3,mcc_4,mcc_5,mcc_6,mcc_7,mcc_8))
+	mcc_dataframe$mcc <-c(mcc_1,mcc_2,mcc_3,mcc_4,mcc_5,mcc_6,mcc_7,mcc_8)
+	mcc_dataframe$parent <- list(parent_1, parent_2, parent_3, parent_4, parent_5, parent_6, parent_7, parent_8)
+	mcc_dataframe <- mcc_dataframe[order(mcc_dataframe$mcc),]
+	print(mcc_dataframe)
+	new_pool_parent_1 <- as.numeric(unlist(mcc_dataframe[8,3]))
+	new_pool_parent_2 <- as.numeric(unlist(mcc_dataframe[7,3]))
+	new_pool_parent_3 <- as.numeric(unlist(mcc_dataframe[6,3]))
+	new_pool_parent_4 <- as.numeric(unlist(mcc_dataframe[5,3]))
+	crossover_1 <- cross_function(new_pool_parent_1, new_pool_parent_2)
+	crossover_2 <- cross_function(new_pool_parent_2, new_pool_parent_3)
+	crossover_3 <- cross_function(new_pool_parent_3, new_pool_parent_4)
+	crossover_4 <- cross_function(new_pool_parent_4, new_pool_parent_1)
+	
+	mutation_1 <- mutate_function(crossover_1)
+	mutation_2 <- mutate_function(crossover_2) 
+	mutation_3 <- mutate_function(crossover_3)
+	mutation_4 <- mutate_function(crossover_4)
+	
+	parent_1 <- new_pool_parent_1
+	parent_2 <- new_pool_parent_2
+	parent_3 <- new_pool_parent_3
+	parent_4 <- new_pool_parent_4
+	parent_5 <- mutation_1
+	parent_6 <- mutation_2
+	parent_7 <- mutation_3
+	parent_8 <- mutation_4
+	
+	counter <- counter+1
+	plot(counter,mcc_dataframe[8,1])
+}
